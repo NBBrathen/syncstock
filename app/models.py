@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime
+from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
 from app.database import Base
 from datetime import datetime, timezone
 
@@ -21,3 +21,12 @@ class Order(Base):
     order_date = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
     status = Column(String(100), nullable=False, default="pending")
     total_amount = Column(Float, nullable=False, default=0.0)
+
+class OrderItem(Base):
+    __tablename__ = "order_items"
+
+    id = Column(Integer, primary_key=True, index=True)
+    order_id = Column(Integer, ForeignKey("orders.id"), nullable=False)
+    product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
+    quantity = Column(Integer, nullable=False)
+    price_at_purchase = Column(Float, nullable=False)

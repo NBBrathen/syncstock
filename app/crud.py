@@ -48,3 +48,23 @@ def delete_product(db: Session, product_id: int):
     db.delete(db_product)
     db.commit()
     return db_product
+
+# ORDERS
+
+def get_orders(db: Session, limit: int = None):
+    query = db.query(models.Order)
+    if limit:
+        query = query.limit(limit)
+    return query.all()
+
+def get_order(db: Session, order_id: int):
+    return db.query(models.Order).filter(models.Order.id == order_id).first()
+
+def create_order(db: Session, order: schemas.OrderCreate):
+    pass
+
+def update_order_status(db: Session, order_id: int, status: str):
+    pass
+
+def cancel_order(db: Session, order_id: int):
+    pass

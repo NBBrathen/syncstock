@@ -1,4 +1,4 @@
-from app.routers import products
+from app.routers import products, orders
 from fastapi import FastAPI
 from app.database import engine
 from app import models
@@ -15,8 +15,9 @@ app = FastAPI(
     version="0.1.0",
 )
 
-# Include the products router
+# Include the product and order routers
 app.include_router(products.router)
+app.include_router(orders.router)
 
 # Root endpoint
 @app.get('/')
