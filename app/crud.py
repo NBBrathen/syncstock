@@ -61,7 +61,54 @@ def get_order(db: Session, order_id: int):
     return db.query(models.Order).filter(models.Order.id == order_id).first()
 
 def create_order(db: Session, order: schemas.OrderCreate):
-    pass
+    total_amount = 0.0 # Start off with no cost
+    product_data = [] # Store the product data in a list
+
+    for item in order.items:
+        product = db.query(models.Product).filter(models.Product.id == item.product_id).first()
+
+        if product is None:
+            raise ValueError(f"Product with id {item.product_id} not found")
+
+        if product.stock < item.quantity:
+            raise ValueError(f"Insufficient stock for product '{product.name}'. Available: {product.stock}, Requested: {item.quantity}")
+
+        line_total = product.price * item.quantity
+        total_amount += line_total
+
+        product_data.append({
+            'product': product,
+            'quantity': item.quantity,
+            'price': product.price
+        })
+
+    db_order = models.Order(
+        customer_name=order.customer_name,
+        customer_email=order.customer_email,
+        customer_phone=order.customer_phone,
+        customer_address=order.customer_address,
+        total_amount=total_amount,
+        status="pending"
+    )
+
+    db.add(db_order)
+    db.flush()
+
+    for data in product_data:
+        order_item = models.OrderItem(
+            order_id=db_order.id,
+            product_id=data['product'].id,
+            quantity=data['quantity'],
+            price_at_purchase=data['price']
+        )
+        db.add(order_item)
+
+        data['product'].stock -= data['quantity']
+
+    db.commit()
+    db.refresh(db_order)
+
+    return db_order
 
 def update_order_status(db: Session, order_id: int, status: str):
     pass

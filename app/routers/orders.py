@@ -10,9 +10,12 @@ router = APIRouter(
     tags=["orders"],
 )
 
-# @router.post("", response_model=schemas.Order, status_code=201)
-# def create_order(order: schemas.OrderCreate, db: Session = Depends(get_db)):
-#     return crud.create_order(db, order=order)
+@router.post("", response_model=schemas.Order, status_code=201)
+def create_order(order: schemas.OrderCreate, db: Session = Depends(get_db)):
+    try:
+        return crud.create_order(db, order=order)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("", response_model=List[schemas.Order])
 def get_orders(limit: int = None, db: Session = Depends(get_db)):
