@@ -1,11 +1,9 @@
-from app.routers import products, orders
+from app.routers import products, orders, auth
 from fastapi import FastAPI
 from app.database import engine
 from app import models
 
-# Create all the database tables
-# This reads the models and creates the corresponding tables in PostgreSQL
-models.Base.metadata.create_all(bind=engine)
+
 
 
 # Creat the FastAPI application
@@ -15,9 +13,10 @@ app = FastAPI(
     version="0.1.0",
 )
 
-# Include the product and order routers
+# Include the product, auth, and order routers
 app.include_router(products.router)
 app.include_router(orders.router)
+app.include_router(auth.router)
 
 # Root endpoint
 @app.get('/')

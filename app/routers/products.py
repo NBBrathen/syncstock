@@ -2,8 +2,9 @@ from typing import List
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 
-from app import crud, schemas
+from app import crud, schemas, models
 from app.database import get_db
+from app.auth import get_current_active_user
 
 router = APIRouter(
     prefix="/products",
@@ -30,14 +31,14 @@ def get_product(product_id: int, db: Session = Depends(get_db)):
 
 
 @router.post('', response_model=schemas.Product, status_code=201)
-def create_product(product: schemas.ProductCreate, db: Session = Depends(get_db)):
+def create_product(product: schemas.ProductCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_active_user)):
 
     return crud.create_product(db, product=product)
 
 
 
 @router.patch('/{product_id}', response_model=schemas.Product)
-def update_product(product_id: int, product_update: schemas.ProductUpdate, db: Session = Depends(get_db)):
+def update_product(product_id: int, product_update: schemas.ProductUpdate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_active_user)):
 
     updated_product = crud.update_product(db, product_id=product_id, product_update=product_update)
     if updated_product is None:
@@ -47,7 +48,7 @@ def update_product(product_id: int, product_update: schemas.ProductUpdate, db: S
 
 
 @router.delete('/{product_id}', response_model=schemas.Product)
-def delete_product(product_id: int, db: Session = Depends(get_db)):
+def delete_product(product_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_active_user)):
     deleted_product = crud.delete_product(db, product_id=product_id)
     if deleted_product is None:
         raise HTTPException(status_code=404,detail="Product not found")

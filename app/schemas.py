@@ -2,7 +2,30 @@ from typing import Optional, List
 from pydantic import BaseModel, Field, EmailStr
 from datetime import datetime
 from enum import Enum
+from typing import Optional, List
 
+class UserBase(BaseModel):
+    email: EmailStr
+    username: str = Field(..., min_length=3, max_length=100)
+
+class UserCreate(UserBase):
+    password: str = Field(..., min_length=8, max_length=72)
+
+class User(UserBase):
+    id: int
+    is_active: bool
+    is_superuser: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    username: Optional[str] = None
 
 # ORDER STATUS ENUM
 class OrderStatus(str, Enum):

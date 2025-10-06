@@ -1,6 +1,25 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Boolean
 from app.database import Base
 from datetime import datetime, timezone
+
+
+# WHEN YOU EDIT A MODEL
+# run this:
+# docker compose exec api alembic revision --autogenerate -m "description"
+
+# TO ROLL BACK
+# docker compose exec api alembic downgrade -1
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String(255), unique=True, nullable=False, index=True)
+    username = Column(String(100), unique=True, nullable=False, index=True)
+    hashed_password = Column(String(255), nullable=False)
+    is_active = Column(Boolean, default=True, nullable=False)
+    is_superuser = Column(Boolean, default=False, nullable=False)
+    created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
 class Product(Base):
     __tablename__ = "products"
