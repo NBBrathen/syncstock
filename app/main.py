@@ -1,10 +1,7 @@
-from app.routers import products, orders, auth
 from fastapi import FastAPI
-from app.database import engine
-from app import models
 
 
-
+from app.routers import auth, orders, products
 
 # Creat the FastAPI application
 app = FastAPI(
@@ -18,12 +15,8 @@ app.include_router(products.router)
 app.include_router(orders.router)
 app.include_router(auth.router)
 
-# Root endpoint
-@app.get('/')
-def read_root():
-    return {
-        "message": "Welcome to SyncStock API",
-        "docs": "/docs",
-        "version": "0.1.0"
-    }
 
+# Root endpoint
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to SyncStock API", "docs": "/docs", "version": "0.1.0"}

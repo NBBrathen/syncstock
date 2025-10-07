@@ -1,9 +1,10 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Boolean
+from datetime import datetime, timezone
+
+from sqlalchemy import (Boolean, Column, DateTime, Float, ForeignKey, Integer,
+                        String)
 from sqlalchemy.orm import relationship
 
 from app.database import Base
-from datetime import datetime, timezone
-
 
 # WHEN YOU EDIT A MODEL
 # run this:
@@ -11,6 +12,7 @@ from datetime import datetime, timezone
 
 # TO ROLL BACK
 # docker compose exec api alembic downgrade -1
+
 
 class User(Base):
     __tablename__ = "users"
@@ -21,7 +23,10 @@ class User(Base):
     hashed_password = Column(String(255), nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
     is_superuser = Column(Boolean, default=False, nullable=False)
-    created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    created_at = Column(
+        DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
+    )
+
 
 class Product(Base):
     __tablename__ = "products"
@@ -32,6 +37,7 @@ class Product(Base):
     stock = Column(Integer, nullable=False, default=0)
     low_stock_threshold = Column(Integer, nullable=False, default=10)
 
+
 class Order(Base):
     __tablename__ = "orders"
 
@@ -40,10 +46,13 @@ class Order(Base):
     customer_email = Column(String(255), nullable=False)
     customer_phone = Column(String(20))
     customer_address = Column(String(512), nullable=False)
-    order_date = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    order_date = Column(
+        DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
+    )
     status = Column(String(100), nullable=False, default="pending")
     total_amount = Column(Float, nullable=False, default=0.0)
     items = relationship("OrderItem", back_populates="order")
+
 
 class OrderItem(Base):
     __tablename__ = "order_items"

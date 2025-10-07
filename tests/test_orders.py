@@ -5,12 +5,7 @@ def test_create_order(client, auth_headers, test_product):
         "customer_email": "john@example.com",
         "customer_phone": "555-1234",
         "customer_address": "123 Main St, City, State 12345",
-        "items": [
-            {
-                "product_id": test_product["id"],
-                "quantity": 2
-            }
-        ]
+        "items": [{"product_id": test_product["id"], "quantity": 2}],
     }
     response = client.post("/orders", json=order_data, headers=auth_headers)
 
@@ -29,12 +24,7 @@ def test_create_order_with_items(client, auth_headers, test_product):
         "customer_name": "Jane Doe",
         "customer_email": "jane@example.com",
         "customer_address": "456 Oak St, City, State 12345",
-        "items": [
-            {
-                "product_id": test_product["id"],
-                "quantity": 3
-            }
-        ]
+        "items": [{"product_id": test_product["id"], "quantity": 3}],
     }
     response = client.post("/orders", json=order_data, headers=auth_headers)
 
@@ -54,12 +44,7 @@ def test_create_order_reduces_stock(client, auth_headers, test_product):
         "customer_name": "Stock Tester",
         "customer_email": "stock@example.com",
         "customer_address": "789 Elm St, City, State 12345",
-        "items": [
-            {
-                "product_id": test_product["id"],
-                "quantity": order_quantity
-            }
-        ]
+        "items": [{"product_id": test_product["id"], "quantity": order_quantity}],
     }
     response = client.post("/orders", json=order_data, headers=auth_headers)
     assert response.status_code == 201
@@ -77,11 +62,8 @@ def test_create_order_insufficient_stock(client, auth_headers, test_product):
         "customer_email": "greedy@example.com",
         "customer_address": "999 Fail St, City, State 12345",
         "items": [
-            {
-                "product_id": test_product["id"],
-                "quantity": 99999  # More than available
-            }
-        ]
+            {"product_id": test_product["id"], "quantity": 99999}  # More than available
+        ],
     }
     response = client.post("/orders", json=order_data, headers=auth_headers)
 
@@ -95,12 +77,7 @@ def test_create_order_nonexistent_product(client, auth_headers):
         "customer_name": "Bad Order",
         "customer_email": "bad@example.com",
         "customer_address": "000 Error St, City, State 12345",
-        "items": [
-            {
-                "product_id": 99999,
-                "quantity": 1
-            }
-        ]
+        "items": [{"product_id": 99999, "quantity": 1}],
     }
     response = client.post("/orders", json=order_data, headers=auth_headers)
 
@@ -115,7 +92,7 @@ def test_get_all_orders(client, auth_headers, test_product):
         "customer_name": "Test Customer",
         "customer_email": "customer@example.com",
         "customer_address": "123 Test St, City, State 12345",
-        "items": [{"product_id": test_product["id"], "quantity": 1}]
+        "items": [{"product_id": test_product["id"], "quantity": 1}],
     }
     client.post("/orders", json=order_data, headers=auth_headers)
 
@@ -134,7 +111,7 @@ def test_get_order_by_id(client, auth_headers, test_product):
         "customer_name": "Specific Customer",
         "customer_email": "specific@example.com",
         "customer_address": "456 Specific St, City, State 12345",
-        "items": [{"product_id": test_product["id"], "quantity": 2}]
+        "items": [{"product_id": test_product["id"], "quantity": 2}],
     }
     create_response = client.post("/orders", json=order_data, headers=auth_headers)
     order_id = create_response.json()["id"]
@@ -155,16 +132,14 @@ def test_update_order_status(client, auth_headers, test_product):
         "customer_name": "Status Update Customer",
         "customer_email": "status@example.com",
         "customer_address": "789 Status St, City, State 12345",
-        "items": [{"product_id": test_product["id"], "quantity": 1}]
+        "items": [{"product_id": test_product["id"], "quantity": 1}],
     }
     create_response = client.post("/orders", json=order_data, headers=auth_headers)
     order_id = create_response.json()["id"]
 
     # Update status
     response = client.patch(
-        f"/orders/{order_id}/status",
-        json={"status": "shipped"},
-        headers=auth_headers
+        f"/orders/{order_id}/status", json={"status": "shipped"}, headers=auth_headers
     )
 
     assert response.status_code == 200
@@ -181,7 +156,7 @@ def test_cancel_order(client, auth_headers, test_product):
         "customer_name": "Cancel Customer",
         "customer_email": "cancel@example.com",
         "customer_address": "111 Cancel St, City, State 12345",
-        "items": [{"product_id": test_product["id"], "quantity": 3}]
+        "items": [{"product_id": test_product["id"], "quantity": 3}],
     }
     create_response = client.post("/orders", json=order_data, headers=auth_headers)
     order_id = create_response.json()["id"]
@@ -207,7 +182,7 @@ def test_filter_orders_by_status(client, auth_headers, test_product):
             "customer_name": f"Customer {i}",
             "customer_email": f"customer{i}@example.com",
             "customer_address": f"{i} Test St, City, State 12345",
-            "items": [{"product_id": test_product["id"], "quantity": 1}]
+            "items": [{"product_id": test_product["id"], "quantity": 1}],
         }
         client.post("/orders", json=order_data, headers=auth_headers)
 

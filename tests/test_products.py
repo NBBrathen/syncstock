@@ -4,7 +4,7 @@ def test_create_product(client, auth_headers):
         "name": "New Product",
         "price": 49.99,
         "stock": 50,
-        "low_stock_threshold": 5
+        "low_stock_threshold": 5,
     }
     response = client.post("/products", json=product_data, headers=auth_headers)
 
@@ -23,7 +23,7 @@ def test_create_product_without_auth(client):
         "name": "New Product",
         "price": 49.99,
         "stock": 50,
-        "low_stock_threshold": 5
+        "low_stock_threshold": 5,
     }
     response = client.post("/products", json=product_data)
 
@@ -60,14 +60,9 @@ def test_get_nonexistent_product(client):
 
 def test_update_product(client, auth_headers, test_product):
     """Test updating a product"""
-    update_data = {
-        "name": "Updated Product",
-        "price": 39.99
-    }
+    update_data = {"name": "Updated Product", "price": 39.99}
     response = client.patch(
-        f"/products/{test_product['id']}",
-        json=update_data,
-        headers=auth_headers
+        f"/products/{test_product['id']}", json=update_data, headers=auth_headers
     )
 
     assert response.status_code == 200
@@ -79,10 +74,7 @@ def test_update_product(client, auth_headers, test_product):
 
 def test_delete_product(client, auth_headers, test_product):
     """Test deleting a product"""
-    response = client.delete(
-        f"/products/{test_product['id']}",
-        headers=auth_headers
-    )
+    response = client.delete(f"/products/{test_product['id']}", headers=auth_headers)
 
     assert response.status_code == 200
 
@@ -136,7 +128,7 @@ def test_pagination(client, auth_headers):
             "name": f"Product {i}",
             "price": 10.00 + i,
             "stock": 10,
-            "low_stock_threshold": 5
+            "low_stock_threshold": 5,
         }
         client.post("/products", json=product_data, headers=auth_headers)
 
