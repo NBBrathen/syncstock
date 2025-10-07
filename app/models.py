@@ -1,4 +1,6 @@
 from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Boolean
+from sqlalchemy.orm import relationship
+
 from app.database import Base
 from datetime import datetime, timezone
 
@@ -28,6 +30,7 @@ class Product(Base):
     name = Column(String(512), nullable=False, index=True)
     price = Column(Float, nullable=False)
     stock = Column(Integer, nullable=False, default=0)
+    low_stock_threshold = Column(Integer, nullable=False, default=10)
 
 class Order(Base):
     __tablename__ = "orders"
@@ -40,6 +43,7 @@ class Order(Base):
     order_date = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
     status = Column(String(100), nullable=False, default="pending")
     total_amount = Column(Float, nullable=False, default=0.0)
+    items = relationship("OrderItem", back_populates="order")
 
 class OrderItem(Base):
     __tablename__ = "order_items"
@@ -49,3 +53,5 @@ class OrderItem(Base):
     product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
     quantity = Column(Integer, nullable=False)
     price_at_purchase = Column(Float, nullable=False)
+    order = relationship("Order", back_populates="items")
+    product = relationship("Product")

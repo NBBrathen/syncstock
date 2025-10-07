@@ -40,6 +40,7 @@ class ProductBase(BaseModel):
     name: str = Field(..., min_length=3, max_length=512, description='Name of the product')
     price: float = Field(..., gt=0, description='Price of the product')
     stock: int = Field(..., ge=0, description="Number of product items in stock")
+    low_stock_threshold: int = Field(default=10, ge=0, description="Alert when stock falls below this")
 
 class ProductCreate(ProductBase):
     pass
@@ -51,6 +52,7 @@ class ProductUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=3, max_length=512, description='Name of the product')
     price: Optional[float] = Field(None, gt=0, description='Price of the product')
     stock: Optional[int] = Field(None, ge=0, description="Number of product items in stock")
+    low_stock_threshold: Optional[int] = Field(None, ge=0, description="Alert when stock falls below this")
 
 
 # ORDER ITEM SCHEMA
@@ -86,6 +88,7 @@ class Order(OrderBase):
     order_date: datetime = Field(..., description="When the order was created")
     status: OrderStatus = Field(..., description="Current status of the order")
     total_amount: float = Field(..., ge=0, description="Total order amount in dollars")
+    items: List[OrderItem] = []
 
     class Config:
         from_attributes = True
@@ -97,3 +100,5 @@ class OrderUpdate(BaseModel):
     customer_address: Optional[str] = Field(None, min_length=5, max_length=512, description="Shipping address")
     status: Optional[OrderStatus] = None
 
+class OrderStatusUpdate(BaseModel):
+    status: OrderStatus

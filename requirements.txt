@@ -9,3 +9,14 @@ passlib[bcrypt]==1.7.4
 bcrypt==4.0.1
 python-jose[cryptography]
 python-multipart
+
+# Testing dependencies
+pytest
+pytest-asyncio
+pytest-cov
+httpx
+
+# Linting (optional but recommended)
+black
+flake8
+isort

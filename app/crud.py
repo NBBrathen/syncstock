@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app import models, schemas
 from app.auth import get_password_hash, verify_password
 
@@ -28,11 +28,8 @@ def authenticate_user(db: Session, username: str, password: str):
         return False
     return user
 
-def get_products(db: Session, limit: int = None):
-    query = db.query(models.Product)
-    if limit:
-        query = query.limit(limit)
-    return query.all()
+def get_products(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(models.Product).offset(skip).limit(limit).all()
 
 def get_product(db: Session, product_id: int):
     return db.query(models.Product).filter(models.Product.id == product_id).first()
@@ -41,7 +38,8 @@ def create_product(db: Session, product: schemas.ProductCreate):
     db_product = models.Product(
         name=product.name,
         price=product.price,
-        stock=product.stock
+        stock=product.stock,
+        low_stock_threshold=product.low_stock_threshold,
     )
 
     db.add(db_product)
@@ -61,6 +59,8 @@ def update_product(db: Session, product_id: int, product_update: schemas.Product
         db_product.price = product_update.price
     if product_update.stock is not None:
         db_product.stock = product_update.stock
+    if product_update.low_stock_threshold is not None:
+        db_product.low_stock_threshold = product_update.low_stock_threshold
 
     db.commit()
     db.refresh(db_product)
@@ -76,16 +76,46 @@ def delete_product(db: Session, product_id: int):
     db.commit()
     return db_product
 
+# SEARCHING
+def search_products(db: Session, search: str = None, min_price: float = None, max_price: float = None,
+                    in_stock_only: bool = False, skip: int = 0, limit: int = 100):
+    query = db.query(models.Product)
+
+    if search:
+        query = query.filter(models.Product.name.ilike(f"%{search}%"))
+
+    if min_price is not None:
+        query = query.filter(models.Product.price >= min_price)
+
+    if max_price is not None:
+        query = query.filter(models.Product.price <= max_price)
+
+    if in_stock_only:
+        query = query.filter(models.Product.stock > 0)
+
+    return query.offset(skip).limit(limit).all()
+
+def filter_orders(db: Session, status: str = None, customer_email: str = None, skip: int = 0, limit: int = 100):
+    query = db.query(models.Order).options(joinedload(models.Order.items))
+
+    if status:
+        query = query.filter(models.Order.status == status)
+
+    if customer_email:
+        query = query.filter(models.Order.customer_email.ilike(f"%{customer_email}%"))
+
+    return query.offset(skip).limit(limit).all()
+
 # ORDERS
 
-def get_orders(db: Session, limit: int = None):
-    query = db.query(models.Order)
-    if limit:
-        query = query.limit(limit)
-    return query.all()
+def get_orders(db: Session, skip: int = 0, limit: int = 100):
+    query = db.query(models.Order).options(joinedload(models.Order.items))
+    return query.offset(skip).limit(limit).all()
 
 def get_order(db: Session, order_id: int):
-    return db.query(models.Order).filter(models.Order.id == order_id).first()
+    return db.query(models.Order)\
+        .options(joinedload(models.Order.items))\
+        .filter(models.Order.id == order_id).first()
 
 def create_order(db: Session, order: schemas.OrderCreate):
     total_amount = 0.0 # Start off with no cost
@@ -172,5 +202,10 @@ def cancel_order(db: Session, order_id: int):
     db.commit()
     db.refresh(db_order)
     return db_order
+
+def get_low_stock_products(db: Session):
+    return db.query(models.Product)\
+        .filter(models.Product.stock <= models.Product.low_stock_threshold)\
+        .all()
 
 
