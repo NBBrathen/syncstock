@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 
-
 from app.routers import auth, orders, products
 
 # Creat the FastAPI application
